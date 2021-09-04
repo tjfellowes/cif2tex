@@ -13,8 +13,8 @@ spaceGroups = {
     }
 
 radiation = {
-    'Cu K\\a': '\\ce{Cu K\\alpha}',
-    'Mo K\\a': '\\ce{Mo K\\alpha}'
+    'Cu K\\a': 'Cu K \\alpha ',
+    'Mo K\\a': 'Mo K \\alpha '
     }
 
 if len(sys.argv) == 1:
@@ -51,23 +51,40 @@ cell_b = f"\( b = {cif['_cell_length_b']}\)~\AA{{}}, "
 cell_c = f"\( c = {cif['_cell_length_c']}\)~\AA{{}}, "
 
 if cif['_space_group_crystal_system'] == 'triclinic':
-    cell_alpha = f"\( \\alpha = {cif['_cell_angle_alpha']}\)~\degree{{}}, "
-    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)~\degree{{}}, "
-    cell_gamma = f"\( \\gamma = {cif['_cell_angle_gamma']}\)~\degree{{}}, "
+    cell_alpha = f"\( \\alpha = {cif['_cell_angle_alpha']}\)\degree{{}}, "
+    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)\degree{{}}, "
+    cell_gamma = f"\( \\gamma = {cif['_cell_angle_gamma']}\)\degree{{}}, "
 elif cif['_space_group_crystal_system'] == 'monoclinic':
     cell_alpha = f""
-    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)~\degree{{}}, "
+    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)\degree{{}}, "
     cell_gamma = f""
 elif cif['_space_group_crystal_system'] == 'orthorhombic':
     cell_alpha = f""
     cell_beta = f""
     cell_gamma = f""
 else:
-    cell_alpha = f"\( \\alpha = {cif['_cell_angle_alpha']}\)~\degree{{}}, "
-    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)~\degree{{}}, "
-    cell_gamma = f"\( \\gamma = {cif['_cell_angle_gamma']}\)~\degree{{}}, "
+    cell_alpha = f"\( \\alpha = {cif['_cell_angle_alpha']}\)\degree{{}}, "
+    cell_beta = f"\( \\beta = {cif['_cell_angle_beta']}\)\degree{{}}, "
+    cell_gamma = f"\( \\gamma = {cif['_cell_angle_gamma']}\)\degree{{}}, "
 
-refln_expression = cif['_reflns_threshold_expression'].replace('\s', '\sigma')
+cell_volume = f"{cif['_cell_volume']}~\\text{{\AA{{}}}}^3"
+cell_z = f"{cif['_cell_formula_units_Z']}"
+temperature = f"{cif['_diffrn_ambient_temperature']}~\\text{{K}}"
+
+radiation = "\\mathrm{" + cif['_diffrn_radiation_type'].replace('\\a', '\\alpha').replace(' ', '~') + "}"
+mu = f"{cif['_exptl_absorpt_coefficient_mu']}~\\text{{mm}}^{{-1}}"
+density = f"{cif['_exptl_crystal_density_diffrn']}~\\text{{g}} \cdot \\text{{cm}} ^{{-3}}"
+
+refln_measured = f"{cif['_diffrn_reflns_number']}"
+theta_range = f"\({cif['_diffrn_reflns_theta_min']}\)\\degree{{}} \(\\leq 2\\theta \\leq {cif['_diffrn_reflns_theta_max']}\)\\degree{{}}"
+
+refln_unique = f"{cif['_reflns_number_total']}"
+r_int = f"\( R_{{\mathrm{{int}}}} = {cif['_diffrn_reflns_av_R_equivalents']} \)"
+r_sigma = f"\(R_{{\mathrm{{sigma}}}} = {cif['_diffrn_reflns_av_unetI/netI']} \)"
+
+r_1 = f"{cif['_refine_ls_R_factor_gt']}"
+wr_2 = f"{cif['_refine_ls_wR_factor_ref']}"
+refln_expression = "\(" + cif['_reflns_threshold_expression'].replace('\s', '\sigma') + "\)"
 
 # Generate the cif report as a string
 report = (f"Crystal Data for {formula} ({molecular_weight}): "
@@ -78,15 +95,14 @@ f"{cell_c}"
 f"{cell_alpha}"
 f"{cell_beta}"
 f"{cell_gamma}"
-#Tidy this up when I can be bothered
-f"\( V = {cif['_cell_volume']} \)~\AA{{}}\(^3\), "
-f"\( Z = {cif['_cell_formula_units_Z']} \), "  
-f"\( T = {cif['_diffrn_ambient_temperature']}\)~K, "
-f"\( \mu ( {radiation[cif['_diffrn_radiation_type']]} ) = {cif['_exptl_absorpt_coefficient_mu']}\)~mm\(^{{-1}}\), "
-f"\( D_{{calc}} = {cif['_exptl_crystal_density_diffrn']}\)~g\(\cdot\)cm\(^{{-3}}\), "
-f"{cif['_diffrn_reflns_number']} reflections measured ({cif['_diffrn_reflns_theta_min']}\\degree{{}} \(\\leq 2\\theta \\leq\) {cif['_diffrn_reflns_theta_max']}\\degree{{}}), "
-f"{cif['_reflns_number_total']} unique (\(R_{{\mathrm{{int}}}} = {cif['_diffrn_reflns_av_R_equivalents']} \), \(R_{{\mathrm{{sigma}}}} = {cif['_diffrn_reflns_av_unetI/netI']} \)) which were used in all calculations. "
-f"The final \(R_1\) was {cif['_refine_ls_R_factor_gt']} \( ({refln_expression}) \) and \(wR_2\) was {cif['_refine_ls_wR_factor_ref']} (all data).")
+f"\( V = {cell_volume} \), "
+f"\( Z = {cell_z} \), "  
+f"\( T = {temperature} \), "
+f"\( \mu({radiation}) = {mu} \), "
+f"\( D_{{\\text{{calc}}}} = {density} \), "
+f"{refln_measured} reflections measured ({theta_range}), "
+f"{refln_unique} unique ({r_int}, {r_sigma}) which were used in all calculations. "
+f"The final \(R_1\) was {r_1} ({refln_expression}) and \(wR_2\) was {wr_2} (all data).")
 
 print(report)
 
